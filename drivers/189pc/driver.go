@@ -36,15 +36,14 @@ type Cloud189PC struct {
 
 	uploadThread int
 
-	familyTransferFolder    *Cloud189Folder
-	cleanFamilyTransferFile func()
-	debounceClean           func()
-	cleanupMu               sync.Mutex
-	cleanupTimer            *time.Timer
-	cleanupActive           int
-	cleanupFamilyObjs       []model.Obj
-	autoRestoreMu           sync.Mutex
-	autoRestoreInFlight     sync.Map
+	familyTransferFolder *Cloud189Folder
+	debounceClean        func()
+	cleanupMu            sync.Mutex
+	cleanupTimer         *time.Timer
+	cleanupActive        int
+	cleanupFamilyObjs    []model.Obj
+	autoRestoreMu        sync.Mutex
+	autoRestoreInFlight  sync.Map
 
 	storageConfig   driver.Config
 	ref             *Cloud189PC
@@ -132,13 +131,6 @@ func (y *Cloud189PC) Init(ctx context.Context) (err error) {
 		}
 	}
 
-	// 清理转存文件节流
-	y.cleanFamilyTransferFile = utils.NewThrottle2(time.Minute, func() {
-		if err := y.cleanFamilyTransfer(context.TODO()); err != nil {
-			utils.Log.Errorf("cleanFamilyTransferFolderError:%s", err)
-		}
-	})
-	y.debounceClean = y.newDebounceCleaner()
 	if y.AutoRestoreExistingCAS && strings.TrimSpace(y.AutoRestoreExistingCASPaths) != "" {
 		y.autoRestoreCron = cron.NewCron(y.autoRestoreInterval())
 		y.autoRestoreCron.Do(func() {
@@ -512,7 +504,7 @@ func (y *Cloud189PC) uploadFile(ctx context.Context, dstDir model.Obj, stream mo
 					// 重命名转存文件
 					newObj, err = y.Rename(transferCtx, file, srcName)
 					if err != nil {
-						// 重命名失败删除源文件
+						// 重命名失败删除个人云中的临时转存文件，避免 .transfer 残留
 						_ = y.Delete(transferCtx, "", file)
 					}
 					return
@@ -541,7 +533,7 @@ func (y *Cloud189PC) sourceKeptOnlyInFamilyTransfer(info *casUploadInfo) bool {
 }
 
 func (y *Cloud189PC) waitFamilyTransferFile(ctx context.Context, dstDir model.Obj, tempName string, finalName string) (*Cloud189File, bool, error) {
-	const attempts = 5
+	const attempts = 30
 	for i := 0; i < attempts; i++ {
 		if err := ctx.Err(); err != nil {
 			return nil, false, err
