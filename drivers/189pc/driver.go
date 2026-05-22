@@ -36,14 +36,15 @@ type Cloud189PC struct {
 
 	uploadThread int
 
-	familyTransferFolder *Cloud189Folder
-	debounceClean        func()
-	cleanupMu            sync.Mutex
-	cleanupTimer         *time.Timer
-	cleanupActive        int
-	cleanupFamilyObjs    []model.Obj
-	autoRestoreMu        sync.Mutex
-	autoRestoreInFlight  sync.Map
+	familyTransferFolder    *Cloud189Folder
+	cleanFamilyTransferFile func()
+	debounceClean           func()
+	cleanupMu               sync.Mutex
+	cleanupTimer            *time.Timer
+	cleanupActive           int
+	cleanupFamilyObjs       []model.Obj
+	autoRestoreMu           sync.Mutex
+	autoRestoreInFlight     sync.Map
 
 	storageConfig   driver.Config
 	ref             *Cloud189PC
@@ -130,6 +131,13 @@ func (y *Cloud189PC) Init(ctx context.Context) (err error) {
 			return err
 		}
 	}
+
+	// 清理转存文件节流
+	y.cleanFamilyTransferFile = utils.NewThrottle2(time.Minute, func() {
+		if err := y.cleanFamilyTransfer(context.TODO()); err != nil {
+			utils.Log.Errorf("cleanFamilyTransferFolderError:%s", err)
+		}
+	})
 	y.debounceClean = y.newDebounceCleaner()
 	if y.AutoRestoreExistingCAS && strings.TrimSpace(y.AutoRestoreExistingCASPaths) != "" {
 		y.autoRestoreCron = cron.NewCron(y.autoRestoreInterval())
@@ -494,26 +502,22 @@ func (y *Cloud189PC) uploadFile(ctx context.Context, dstDir model.Obj, stream mo
 				}
 
 				// 优先查找临时名，兼容 targetFileName 被 COPY 接口忽略的情况
-				tempName := newObj.GetName()
 				var file *Cloud189File
 				var needRename bool
-				file, needRename, err = y.waitFamilyTransferFile(transferCtx, transferDstDir, tempName, srcName)
+				file, needRename, err = y.waitFamilyTransferFile(transferCtx, transferDstDir, newObj.GetName(), srcName)
 				if err != nil {
-					go y.repairFamilyTransferFile(context.TODO(), transferDstDir, tempName, srcName, 10)
 					return
 				}
 				if needRename {
 					// 重命名转存文件
 					newObj, err = y.Rename(transferCtx, file, srcName)
 					if err != nil {
-						// 重命名失败删除个人云中的临时转存文件，避免 .transfer 残留
+						// 重命名失败删除源文件
 						_ = y.Delete(transferCtx, "", file)
 					}
-					go y.repairFamilyTransferFileAfterDelay(context.TODO(), transferDstDir, tempName, srcName, 30*time.Second)
 					return
 				}
 				newObj = file
-				go y.repairFamilyTransferFileAfterDelay(context.TODO(), transferDstDir, tempName, srcName, 30*time.Second)
 				return
 			}
 		}()
@@ -565,49 +569,6 @@ func (y *Cloud189PC) waitFamilyTransferFile(ctx context.Context, dstDir model.Ob
 	return nil, false, fmt.Errorf("unknown error: No transfer file obtained %s or %s", tempName, finalName)
 }
 
-func (y *Cloud189PC) repairFamilyTransferFileAfterDelay(ctx context.Context, dstDir model.Obj, tempName string, finalName string, delay time.Duration) {
-	if delay > 0 {
-		time.Sleep(delay)
-	}
-	y.repairFamilyTransferFile(ctx, dstDir, tempName, finalName, 10)
-}
-
-func (y *Cloud189PC) repairFamilyTransferFile(ctx context.Context, dstDir model.Obj, tempName string, finalName string, attempts int) {
-	if dstDir == nil || tempName == "" || finalName == "" || tempName == finalName || attempts <= 0 {
-		return
-	}
-	for i := 0; i < attempts; i++ {
-		if err := ctx.Err(); err != nil {
-			return
-		}
-		tempFile, tempErr := y.findFileByName(ctx, tempName, dstDir.GetID(), false)
-		finalFile, finalErr := y.findFileByName(ctx, finalName, dstDir.GetID(), false)
-		if finalErr != nil && finalErr != errs.ObjectNotFound {
-			utils.Log.Errorf("familyTransferFinalFindError:%s:%s", finalName, finalErr)
-			return
-		}
-		if tempErr == nil {
-			if finalErr == nil && finalFile != nil {
-				if err := y.Delete(ctx, "", tempFile); err != nil {
-					utils.Log.Errorf("familyTransferTempDeleteError:%s:%s", tempName, err)
-				}
-				return
-			}
-			if _, err := y.Rename(ctx, tempFile, finalName); err != nil {
-				utils.Log.Errorf("familyTransferTempRenameError:%s:%s", tempName, err)
-				if err := y.Delete(ctx, "", tempFile); err != nil {
-					utils.Log.Errorf("familyTransferTempDeleteError:%s:%s", tempName, err)
-				}
-			}
-			return
-		}
-		if tempErr != errs.ObjectNotFound {
-			utils.Log.Errorf("familyTransferTempFindError:%s:%s", tempName, tempErr)
-			return
-		}
-		time.Sleep(2 * time.Second)
-	}
-}
 func (y *Cloud189PC) ensureFamilyTransferFolder(ctx context.Context) error {
 	if y.familyTransferFolder != nil && y.familyTransferFolder.GetID() != "" {
 		if _, err := y.getFilesWithPage(ctx, y.familyTransferFolder.GetID(), true, 1, 1, "filename", "asc"); err == nil {
