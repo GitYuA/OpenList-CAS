@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -475,9 +476,13 @@ func (y *Cloud189PC) uploadFile(ctx context.Context, dstDir model.Obj, stream mo
 		// 使用临时文件名
 		srcName := stream.GetName()
 		skipPersonalTransfer := y.shouldDeleteSource() && y.shouldUploadCAS(srcName)
+		transferName := fmt.Sprintf("0%s.transfer", uuid.NewString())
+		if ext := filepath.Ext(srcName); ext != "" {
+			transferName += ext
+		}
 		stream = &WrapFileStreamer{
 			FileStreamer: stream,
-			Name:         fmt.Sprintf("0%s.transfer", uuid.NewString()),
+			Name:         transferName,
 		}
 
 		// 使用家庭云上传
