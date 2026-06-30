@@ -143,6 +143,8 @@ jobs:
             github.com/OpenListTeam/OpenList/v4/internal/conf.WebVersion=rolling
         env:
           GOFLAGS: ${{ matrix.goflags }}
+          GOCACHE: ${{ runner.temp }}/go-cache
+          GOMODCACHE: ${{ runner.temp }}/go-mod-cache
 
       - name: Verify musl binaries are static
         if: matrix.musl_static == 'true'
