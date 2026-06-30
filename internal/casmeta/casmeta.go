@@ -124,12 +124,20 @@ func Encode(info *Info) ([]byte, error) {
 
 func Decode(data []byte) (*Info, error) {
 	data = bytes.TrimSpace(data)
-	decoded, err := base64.StdEncoding.DecodeString(string(data))
-	if err != nil {
-		return nil, err
+	if len(data) == 0 {
+		return nil, fmt.Errorf("invalid cas payload")
 	}
+
 	var payload Payload
-	if err = utils.Json.Unmarshal(decoded, &payload); err != nil {
+	var err error
+
+	decoded, decodeErr := base64.StdEncoding.DecodeString(string(data))
+	if decodeErr == nil {
+		err = utils.Json.Unmarshal(decoded, &payload)
+	} else {
+		err = utils.Json.Unmarshal(data, &payload)
+	}
+	if err != nil {
 		return nil, err
 	}
 	if payload.Name == "" || payload.Size < 0 || payload.MD5 == "" {
