@@ -36,7 +36,7 @@ else
     # Always true if there's no tag
     version=$(git describe --abbrev=0 --tags 2>/dev/null || echo "${VERSION_OVERRIDE:-v0.0.0}")
   else
-    version="${VERSION_OVERRIDE:-v4.2.1}"
+    version="${VERSION_OVERRIDE:-v4.2.3}"
   fi
   webVersion=$(eval "curl -fsSL --max-time 2 $githubAuthArgs \"https://api.github.com/repos/$frontendRepo/releases/latest\"" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g')
 fi
@@ -202,7 +202,6 @@ BuildWin7() {
 }
 
 BuildDev() {
-  rm -rf .git/
   mkdir -p "dist"
   muslflags="$(GetMuslStaticLdflags)"
   BASE="https://github.com/OpenListTeam/musl-compilers/releases/latest/download/"
@@ -293,7 +292,6 @@ BuildDockerMultiplatform() {
 }
 
 BuildRelease() {
-  rm -rf .git/
   mkdir -p "build"
   BuildWinArm64 ./build/"$appName"-windows-arm64.exe
   BuildWin7 ./build/"$appName"-windows7
@@ -313,7 +311,7 @@ BuildRelease() {
 BuildLoongGLIBC() {
   local target_abi="$2"
   local output_file="$1"
-  local oldWorldGoVersion="1.25.0"
+  local oldWorldGoVersion="1.26.4"
   local loong_tags
   loong_tags=$(GetBuildTagsForTarget "linux-loong64")
   
@@ -333,13 +331,13 @@ BuildLoongGLIBC() {
     
     # Download and setup patched Go compiler for old-world
     if ! curl -fsSL --retry 3 -H "Authorization: Bearer $GITHUB_TOKEN" \
-      "https://github.com/loong64/loong64-abi1.0-toolchains/releases/download/20250821/go${oldWorldGoVersion}.linux-amd64.tar.gz" \
+      "https://github.com/loong64-abi1-0/golang/releases/download/go${oldWorldGoVersion}/go${oldWorldGoVersion}.linux-amd64.tar.gz" \
       -o go-loong64-abi1.0.tar.gz; then
       echo "Error: Failed to download patched Go compiler for old-world ABI1.0"
       if [ -n "$GITHUB_TOKEN" ]; then
         echo "Error output from curl:"
         curl -fsSL --retry 3 -H "Authorization: Bearer $GITHUB_TOKEN" \
-          "https://github.com/loong64/loong64-abi1.0-toolchains/releases/download/20250821/go${oldWorldGoVersion}.linux-amd64.tar.gz" \
+          "https://github.com/loong64-abi1-0/golang/releases/download/go${oldWorldGoVersion}/go${oldWorldGoVersion}.linux-amd64.tar.gz" \
           -o go-loong64-abi1.0.tar.gz || true
       fi
       return 1
@@ -466,7 +464,6 @@ BuildLoongGLIBC() {
 }
 
 BuildReleaseLinuxMusl() {
-  rm -rf .git/
   mkdir -p "build"
   muslflags="$(GetMuslStaticLdflags)"
   BASE="https://github.com/OpenListTeam/musl-compilers/releases/latest/download/"
@@ -495,7 +492,6 @@ BuildReleaseLinuxMusl() {
 }
 
 BuildReleaseLinuxMuslArm() {
-  rm -rf .git/
   mkdir -p "build"
   muslflags="$(GetMuslStaticLdflags)"
   BASE="https://github.com/OpenListTeam/musl-compilers/releases/latest/download/"
@@ -526,7 +522,6 @@ BuildReleaseLinuxMuslArm() {
 
 
 BuildReleaseAndroid() {
-  rm -rf .git/
   mkdir -p "build"
   wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
   unzip android-ndk-r26b-linux.zip
@@ -547,7 +542,6 @@ BuildReleaseAndroid() {
 }
 
 BuildReleaseFreeBSD() {
-  rm -rf .git/
   mkdir -p "build/freebsd"
   
   # Get latest FreeBSD 14.x release version from GitHub 

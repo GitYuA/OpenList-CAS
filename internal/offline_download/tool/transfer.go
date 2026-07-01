@@ -10,6 +10,7 @@ import (
 	"time"
 
 	_189pc "github.com/OpenListTeam/OpenList/v4/drivers/189pc"
+	"github.com/OpenListTeam/OpenList/v4/internal/casmeta"
 	"github.com/OpenListTeam/OpenList/v4/internal/conf"
 	"github.com/OpenListTeam/OpenList/v4/internal/fs"
 	"github.com/OpenListTeam/OpenList/v4/internal/model"
@@ -18,7 +19,6 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/internal/task"
 	"github.com/OpenListTeam/OpenList/v4/internal/task_group"
 	"github.com/OpenListTeam/OpenList/v4/pkg/http_range"
-	"github.com/OpenListTeam/OpenList/v4/pkg/torrent"
 	"github.com/OpenListTeam/OpenList/v4/pkg/utils"
 	"github.com/OpenListTeam/OpenList/v4/server/common"
 	"github.com/OpenListTeam/tache"
@@ -380,7 +380,7 @@ func tryRapidUpload189(t *TransferTask, file *os.File, fileSize int64) (model.Ob
 	}
 
 	// 计算整文件 MD5（旧接口只需要 fileMD5）
-	fileMD5, _, err := _189pc.ComputeSliceMD5sFromReader(file, torrent.DefaultPieceSize)
+	fileMD5, _, err := _189pc.ComputeSliceMD5sFromReader(file, casmeta.DefaultSliceSize)
 	if err != nil {
 		return nil, fmt.Errorf("计算 MD5 失败: %w", err)
 	}

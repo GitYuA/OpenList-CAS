@@ -92,8 +92,6 @@ graph LR
 | `Delete CAS after restore` | `false` | 恢复成功后自动删除 `.cas` 文件，并同步清理回收站中的 `.cas` 文件 |
 | `Auto restore existing cas` | `false` | 开启后会自动扫描监控目录中的 `.cas` 文件并尝试恢复源文件 |
 | `Auto restore existing cas paths` | 空 | 每行一个路径，只监控这些目录及其子目录；留空则不监控 |
-| `CAS extension allowlist` | 空 | CAS 扩展名白名单，多个扩展名用英文逗号分隔；留空表示不限制，例如 `mp4,mkv,iso,zip` |
-| `CAS download restore` | `false` | 开启后，通过 `/d/*` 下载 `.cas` 文件时，会先恢复并返回真实文件，而不是直接返回 `.cas` 元数据 |
 
 ### Local
 
@@ -282,6 +280,7 @@ http://localhost:5244
 
 不是，`.cas` 只是元数据描述，不包含原文件本体。
 
+
 ### 为什么 Local 不支持恢复？
 
 因为本地存储不具备这套恢复链依赖的能力。
@@ -290,33 +289,12 @@ http://localhost:5244
 
 可以通过家庭空间中转上传，减轻个人空间上传流量限制影响。
 
-### OpenList 权限问题
-
-在使用 OpenList 时，可能会遇到权限不足，尤其是在访问或写入 /opt/openlist/data 路径时。这通常是由于数据目录权限设置不正确或容器用户配置问题导致的。
-
-示例问题：
-Error: Permission denied: '/opt/openlist/data'
-
-解决方法：
-1. 修改目录权限
-   - sudo chmod -R 777 /opt/openlist/data
-   - sudo chown -R $USER:$USER /opt/openlist/data
-2. Docker 容器中设置用户权限
-   在 docker-compose.yml 中添加：
-   environment:
-   - PUID=0
-   - PGID=0
-
-然后重新启动容器：
-
-docker-compose down && docker-compose up -d
-
 ---
 
 ## 🔗 与上游项目
 
 - 上游项目：[OpenList](https://github.com/OpenListTeam/OpenList)
-- 参考项目：[openlist4.1.10](https://github.com/1307super/openlist4.1.10)
+- 上游项目：[openlist4.1.10](https://github.com/1307super/openlist4.1.10) 
 - 本项目为非官方增强分支
 
 ---

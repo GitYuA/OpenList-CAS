@@ -3,6 +3,7 @@ package _189pc
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -116,4 +117,25 @@ func headerToMap(header http.Header) map[string]string {
 		}
 	}
 	return headers
+}
+
+func ComputeSliceMD5sFromReader(reader io.Reader, sliceSize int64) (string, []string, error) {
+	if sliceSize <= 0 {
+		sliceSize = casmeta.DefaultSliceSize
+	}
+	hasher := casmeta.NewHasherWriter(sliceSize)
+	if _, err := io.Copy(hasher, reader); err != nil {
+		return "", nil, err
+	}
+	info := hasher.Info("")
+	if info.SliceMD5 == info.MD5 {
+		return info.MD5, nil, nil
+	}
+	return info.MD5, []string{info.SliceMD5}, nil
+}
+
+func GetMD5Str(s string) string {
+	h := utils.MD5.NewFunc()
+	_, _ = h.Write([]byte(s))
+	return hex.EncodeToString(h.Sum(nil))
 }
