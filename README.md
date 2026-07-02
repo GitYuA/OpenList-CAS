@@ -321,7 +321,6 @@ http://localhost:5244
 ## ⭐ Star History
 
 如果这个项目帮到了你，欢迎点个 ⭐ 支持！
-## Star History
 
 <a href="https://www.star-history.com/?repos=GitYuA%2FOpenList-CAS&type=date&legend=top-left">
  <picture>
