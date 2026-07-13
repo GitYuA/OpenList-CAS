@@ -324,10 +324,10 @@ http://localhost:5244
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=GitYuA%2FOpenList-CAS&type=date&legend=top-left">
+[<a href="https://www.star-history.com/?repos=GitYuA%2FOpenList-CAS&type=date&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&theme=dark&legend=top-left&sealed_token=ONRthEbwBAfWHsOrQznJD23YS8nNZq2qC7koyQlEA1lp86LtIve-OjyOtY4dsTzwhRpaiETn3fGz9uN-" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&legend=top-left&sealed_token=ONRthEbwBAfWHsOrQznJD23YS8nNZq2qC7koyQlEA1lp86LtIve-OjyOtY4dsTzwhRpaiETn3fGz9uN-" />
    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&legend=top-left&sealed_token=ONRthEbwBAfWHsOrQznJD23YS8nNZq2qC7koyQlEA1lp86LtIve-OjyOtY4dsTzwhRpaiETn3fGz9uN-" />
  </picture>
-</a>
+</a>](https://www.star-history.com/?repos=GitYuA%2FOpenList-CAS&type=date&legend=top-left)
