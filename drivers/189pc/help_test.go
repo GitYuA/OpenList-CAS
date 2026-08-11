@@ -7,7 +7,7 @@ import (
 
 func TestTimeUnmarshalNarrowNoBreakSpace(t *testing.T) {
 	var got Time
-	if err := got.UnmarshalJSON([]byte(`"Jan 2, 2026 11:04:05 AM"`)); err != nil {
+	if err := got.UnmarshalJSON([]byte(`"Aug 11, 2026, 11:23:25 AM"`)); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if time.Time(got).IsZero() {
