@@ -324,10 +324,10 @@ http://localhost:5244
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=GitYuA%2FOpenList-CAS&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=OpenList-CAS%2FOpenList-CAS&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&theme=dark&legend=top-left&sealed_token=q-auJ8dfl9cTHdSYEAm_7QK8YZ1541gYbvG-ALnCaFwaAL6aE4q7pJI5YipsY4WUJgM" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&legend=top-left&sealed_token=q-auJ8dfl9cTHdSYEAm_7QK8YZ1541gYbvG-ALnCaFwaAL6aE4q7pJI5YipsY4WUJgM" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=GitYuA/OpenList-CAS&type=date&legend=top-left&sealed_token=q-auJ8dfl9cTHdSYEAm_7QK8YZ1541gYbvG-ALnCaFwaAL6aE4q7pJI5YipsY4WUJgM" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=OpenList-CAS/OpenList-CAS&type=date&theme=dark&legend=top-left&sealed_token=EfiPsrN1vceM3QXgxNDAAwpO4oeAb84mrIQBQOl_pCeVtECWEtx__NIHPZBUDI1DVA" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=OpenList-CAS/OpenList-CAS&type=date&legend=top-left&sealed_token=EfiPsrN1vceM3QXgxNDAAwpO4oeAb84mrIQBQOl_pCeVtECWEtx__NIHPZBUDI1DVA" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=OpenList-CAS/OpenList-CAS&type=date&legend=top-left&sealed_token=EfiPsrN1vceM3QXgxNDAAwpO4oeAb84mrIQBQOl_pCeVtECWEtx__NIHPZBUDI1DVA" />
  </picture>
 </a>
